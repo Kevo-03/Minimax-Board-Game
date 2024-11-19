@@ -10,7 +10,7 @@ public class Piece
     
     {
         this.type = type;
-        this.icon = new ImageIcon(iconPath);
+        this.icon = new ImageIcon(getClass().getResource(iconPath));
         this.isAIControlled = isAIControlled;
     }
 
