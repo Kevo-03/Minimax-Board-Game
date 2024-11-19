@@ -6,6 +6,10 @@ public class GameBoardGUI extends JFrame
     private JPanel boardPanel;
     private JButton[][] boardButtons;
 
+    private Piece selectedPiece = null; 
+    private int selectedRow = -1;       
+    private int selectedCol = -1;    
+
     public GameBoardGUI() 
     {
         super("Strategic Board Game");
@@ -40,6 +44,9 @@ public class GameBoardGUI extends JFrame
                     setPieceOnButton(boardButtons[row][col], new CirclePiece());
                 }
 
+                int finalRow = row;
+                int finalCol = col;
+                boardButtons[row][col].addActionListener(e -> handleButtonClick(finalRow, finalCol));
                 boardPanel.add(boardButtons[row][col]);
             }
         }
@@ -51,6 +58,44 @@ public class GameBoardGUI extends JFrame
     {
         button.setIcon(resizeIcon(piece.getIcon(), 60, 60));
         button.putClientProperty("piece", piece);
+    }
+
+    private void handleButtonClick(int row, int col) 
+    {
+        JButton clickedButton = boardButtons[row][col];
+        Piece clickedPiece = (Piece) clickedButton.getClientProperty("piece");
+    
+        if (selectedPiece == null && clickedPiece != null) 
+        {
+            if (clickedPiece instanceof CirclePiece)
+            {
+                selectedPiece = clickedPiece;
+                selectedRow = row;
+                selectedCol = col;
+                System.out.println("Piece selected at (" + row + ", " + col + ")");
+            }
+        } 
+        else if (selectedPiece != null) 
+        {
+            if (isAdjacent(row, col, selectedRow, selectedCol))
+            {
+                System.out.println("Moving piece to (" + row + ", " + col + ")");
+        
+                boardButtons[selectedRow][selectedCol].setIcon(null);
+                boardButtons[selectedRow][selectedCol].putClientProperty("piece", null);
+        
+                setPieceOnButton(clickedButton, selectedPiece);
+        
+                selectedPiece = null;
+                selectedRow = -1;
+                selectedCol = -1;
+            }
+        }
+    }
+
+    private boolean isAdjacent(int row, int col, int selectedRow, int selectedCol) 
+    {
+        return (Math.abs(row - selectedRow) == 1 && col == selectedCol) || (Math.abs(col - selectedCol) == 1 && row == selectedRow);
     }
 
     private ImageIcon resizeIcon(ImageIcon icon, int width, int height) 
