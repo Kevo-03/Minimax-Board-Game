@@ -10,11 +10,26 @@ public class AIPlayer
         this.depth = depth;
     }
 
-    private int minimax(Piece [][] currentState, int depth, int alpha, int beta)
+    private int minimax(Piece [][] currentState, int depth, int alpha, int beta, boolean isMaximazing)
     {
         if(depth == 0 && isTerminalState(currentState))
         {
             return evaluate(currentState);
+        }
+
+        if(isMaximazing)
+        {
+            int v = Integer.MIN_VALUE;
+            for(Piece[][] successor : getSuccesors(currentState))
+            {
+                int tempV = minimax(successor, depth - 1, alpha, beta, false);
+                v = Math.max(tempV,v);
+                if(v >= beta)
+                {
+                    alpha = Math.max(alpha, v);
+                }
+                return v;
+            }
         }
     }
 
