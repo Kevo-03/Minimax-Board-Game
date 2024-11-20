@@ -20,7 +20,7 @@ public class AIPlayer
         if(isMaximazing)
         {
             int v = Integer.MIN_VALUE;
-            for(Piece[][] successor : getSuccesors(currentState))
+            for(Piece[][] successor : getSuccesors(currentState,true))
             {
                 int tempV = minimax(successor, depth - 1, alpha, beta, false);
                 v = Math.max(tempV,v);
@@ -33,7 +33,7 @@ public class AIPlayer
         else 
         {
             int v = Integer.MAX_VALUE;
-            for(Piece[][] successor : getSuccesors(currentState))
+            for(Piece[][] successor : getSuccesors(currentState,false))
             {
                 int tempV = minimax(successor, depth - 1, alpha, beta, true);
                 v = Math.min(tempV,v);
@@ -55,7 +55,7 @@ public class AIPlayer
         return false;
     }
 
-    private List<Piece[][]> getSuccesors(Piece[][] currentState)
+    private List<Piece[][]> getSuccesors(Piece[][] currentState,boolean isAiTurn)
     {
         List<Piece[][]> successors = new ArrayList<>();
 
@@ -64,7 +64,7 @@ public class AIPlayer
             for(int col = 0; col < currentState[row].length; col++)
             {
                 Piece piece = currentState[row][col];
-                if(piece != null && piece.isAIControlled())
+                if(piece != null && piece.isAIControlled() == isAiTurn)
                 {
                     List<int[]> validMoves = getValidMoves(currentState, row, col);
                     for (int[] move : validMoves) 
