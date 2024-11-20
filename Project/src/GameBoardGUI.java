@@ -5,7 +5,7 @@ public class GameBoardGUI extends JFrame
 {
     private JPanel boardPanel;
     private JButton[][] boardButtons;
-
+    private Piece[][] boardState;
     private Piece selectedPiece = null; 
     private int selectedRow = -1;       
     private int selectedCol = -1;    
@@ -25,6 +25,7 @@ public class GameBoardGUI extends JFrame
     {
         boardPanel = new JPanel(new GridLayout(7, 7));
         boardButtons = new JButton[7][7];
+        boardState = new Piece[7][7];
 
         for (int row = 0; row < 7; row++) 
         {
@@ -37,12 +38,21 @@ public class GameBoardGUI extends JFrame
              
                 if ((col == 0 && (row == 0 || row == 2 )) || (col == 6 && (row == 4 || row == 6 ))) 
                 { 
-                    setPieceOnButton(boardButtons[row][col], new TrianglePiece());
+                    TrianglePiece piece = new TrianglePiece();
+                    setPieceOnButton(boardButtons[row][col], piece);
+                    boardState[row][col] = piece;
                 } 
                 else if ((col == 0 && (row == 4 || row == 6 )) || (col == 6 && (row == 0 || row == 2 ))) 
                 { 
-                    setPieceOnButton(boardButtons[row][col], new CirclePiece());
+                    CirclePiece piece = new CirclePiece();
+                    setPieceOnButton(boardButtons[row][col], piece);
+                    boardState[row][col] = piece;
                 }
+                else 
+                {
+                    boardState[row][col] = null;
+                }
+    
 
                 int finalRow = row;
                 int finalCol = col;
@@ -77,20 +87,47 @@ public class GameBoardGUI extends JFrame
         } 
         else if (selectedPiece != null) 
         {
-            if (isAdjacent(row, col, selectedRow, selectedCol))
+            if (isAdjacent(row, col, selectedRow, selectedCol) && boardState[row][col] == null)
             {
                 System.out.println("Moving piece to (" + row + ", " + col + ")");
         
                 boardButtons[selectedRow][selectedCol].setIcon(null);
                 boardButtons[selectedRow][selectedCol].putClientProperty("piece", null);
-        
                 setPieceOnButton(clickedButton, selectedPiece);
+
+                boardState[row][col] = selectedPiece;
+                boardState[selectedRow][selectedCol] = null;
         
                 selectedPiece = null;
                 selectedRow = -1;
                 selectedCol = -1;
             }
         }
+        printBoardState();
+    }
+
+    private void printBoardState() 
+    {
+        for (int row = 0; row < 7; row++) 
+        {
+            for (int col = 0; col < 7; col++) 
+            {
+                if (boardState[row][col] == null) 
+                {
+                    System.out.print("[ ] ");
+                } 
+                else if (boardState[row][col] instanceof CirclePiece) 
+                {
+                    System.out.print("[O] ");
+                }
+                 else if (boardState[row][col] instanceof TrianglePiece) 
+                 {
+                    System.out.print("[△] ");
+                }
+            }
+            System.out.println();
+        }
+        System.out.println();
     }
 
     private boolean isAdjacent(int row, int col, int selectedRow, int selectedCol) 
