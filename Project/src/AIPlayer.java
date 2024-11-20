@@ -25,11 +25,23 @@ public class AIPlayer
                 int tempV = minimax(successor, depth - 1, alpha, beta, false);
                 v = Math.max(tempV,v);
                 if(v >= beta)
-                {
-                    alpha = Math.max(alpha, v);
-                }
-                return v;
+                    return v;
+                alpha = Math.max(alpha, v);
             }
+            return v;
+        }
+        else 
+        {
+            int v = Integer.MAX_VALUE;
+            for(Piece[][] successor : getSuccesors(currentState))
+            {
+                int tempV = minimax(successor, depth - 1, alpha, beta, true);
+                v = Math.min(tempV,v);
+                if(v <= alpha)
+                    return v;
+                beta = Math.min(beta, v);
+            }
+            return v;
         }
     }
 
