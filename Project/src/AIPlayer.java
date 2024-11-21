@@ -10,6 +10,23 @@ public class AIPlayer
         this.depth = depth;
     }
 
+    public Piece[][] makeMove(Piece[][] boardState) 
+    {
+        int bestScore = Integer.MIN_VALUE;
+        Piece[][] bestMove = null;
+    
+        for (Piece[][] successor : getSuccesors(boardState,true)) 
+        {
+            int score = minimax(successor, depth - 1, Integer.MIN_VALUE, Integer.MAX_VALUE,false);
+            if (score > bestScore) 
+            {
+                bestScore = score;
+                bestMove = successor;
+            }
+        }
+        return bestMove;
+    }
+
     private int minimax(Piece [][] currentState, int depth, int alpha, int beta, boolean isMaximazing)
     {
         if(depth == 0 && isTerminalState(currentState))
