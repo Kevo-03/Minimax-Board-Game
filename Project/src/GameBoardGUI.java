@@ -132,7 +132,7 @@ public class GameBoardGUI extends JFrame
                     break; 
                 }
     
-                if (board[r][c].isAIControlled() == board[row][col].isAIControlled()) 
+                if (board[row][col] != null && board[r][c].isAIControlled() == board[row][col].isAIControlled()) 
                 {
                     friendlyPieceFound = true; 
                     break;
@@ -169,7 +169,7 @@ public class GameBoardGUI extends JFrame
             int adjCol = col + dir[1];
     
             if (isWithinBounds(adjRow, adjCol, board) && board[adjRow][adjCol] != null &&
-                board[adjRow][adjCol].isAIControlled() == board[row][col].isAIControlled()) 
+                board[row][col] != null && board[adjRow][adjCol].isAIControlled() == board[row][col].isAIControlled()) 
                 {
                 boolean allyCaptured = checkSelfCapture(board, adjRow, adjCol);
     
