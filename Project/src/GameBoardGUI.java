@@ -79,7 +79,7 @@ public class GameBoardGUI extends JFrame
     
         if (selectedPiece == null && clickedPiece != null) 
         {
-            if (clickedPiece instanceof CirclePiece)
+            if (clickedPiece instanceof CirclePiece || clickedPiece instanceof TrianglePiece)
             {
                 selectedPiece = clickedPiece;
                 selectedRow = row;
@@ -105,6 +105,8 @@ public class GameBoardGUI extends JFrame
                 selectedCol = -1;
 
                 checkCapture(boardState, row, col);
+
+                redrawBoard();
             }
         }
         printBoardState();
@@ -208,6 +210,26 @@ public class GameBoardGUI extends JFrame
         return row >= 0 && row < board.length && col >= 0 && col < board[0].length;
     }
 
+    private void redrawBoard() 
+    {
+        for (int row = 0; row < boardState.length; row++) 
+        {
+            for (int col = 0; col < boardState[row].length; col++) 
+            {
+                if (boardState[row][col] == null) 
+                {
+                    boardButtons[row][col].setIcon(null); // Clear the icon
+                    //setPieceOnButton(boardButtons[row][col], null);
+                } 
+                else 
+                {
+                    //Piece piece = boardState[row][col];
+                    //setPieceOnButton(boardButtons[row][col], piece);
+                    boardButtons[row][col].setIcon(resizeIcon(boardState[row][col].getIcon(), 60, 60)); // Update with the piece's icon
+                }
+            }
+        }
+    }
 
     private void printBoardState() 
     {
