@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameBoardGUI extends JFrame 
 {
@@ -101,10 +103,111 @@ public class GameBoardGUI extends JFrame
                 selectedPiece = null;
                 selectedRow = -1;
                 selectedCol = -1;
+
+                checkCapture(boardState, row, col);
             }
         }
         printBoardState();
     }
+
+    private void checkCapture(Piece[][] board, int row, int col) 
+    {
+        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; 
+    
+        for (int[] dir : directions) 
+        {
+            List<int[]> captureGroup = new ArrayList<>();
+            boolean wallFound = false;
+            boolean friendlyPieceFound = false;
+    
+            int r = row + dir[0];
+            int c = col + dir[1];
+    
+            while (isWithinBounds(r, c, board)) 
+            {
+                if (board[r][c] == null) 
+                {
+                    break; 
+                }
+    
+                if (board[r][c].isAIControlled() == board[row][col].isAIControlled()) 
+                {
+                    friendlyPieceFound = true; 
+                    break;
+                }
+    
+                captureGroup.add(new int[]{r, c}); 
+                r += dir[0];
+                c += dir[1];
+            }
+    
+            if (!isWithinBounds(r, c, board)) 
+            {
+                wallFound = true; 
+            }
+    
+            if (wallFound || friendlyPieceFound) 
+            {
+                for (int[] pos : captureGroup) 
+                {
+                    board[pos[0]][pos[1]] = null;
+                }
+            }
+        }
+    
+        boolean movedPieceCaptured = checkSelfCapture(board, row, col);
+        if (movedPieceCaptured) 
+        {
+            board[row][col] = null; 
+        }
+    
+        for (int[] dir : directions) 
+        {
+            int adjRow = row + dir[0];
+            int adjCol = col + dir[1];
+    
+            if (isWithinBounds(adjRow, adjCol, board) && board[adjRow][adjCol] != null &&
+                board[adjRow][adjCol].isAIControlled() == board[row][col].isAIControlled()) 
+                {
+                boolean allyCaptured = checkSelfCapture(board, adjRow, adjCol);
+    
+                if (allyCaptured) 
+                {
+                    board[adjRow][adjCol] = null;
+                }
+            }
+        }
+    }
+    
+    private boolean checkSelfCapture(Piece[][] board, int row, int col) 
+    {
+        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+        for (int[] dir : directions) 
+        {
+            int r1 = row + dir[0];
+            int c1 = col + dir[1];
+            int r2 = row - dir[0];
+            int c2 = col - dir[1];
+    
+            boolean isTrapped = isWithinBounds(r1, c1, board) &&
+                                board[r1][c1] != null &&
+                                board[r1][c1].isAIControlled() != board[row][col].isAIControlled() &&
+                                (!isWithinBounds(r2, c2, board) || 
+                                 (board[r2][c2] != null && board[r2][c2].isAIControlled() != board[row][col].isAIControlled()));
+    
+            if (isTrapped) 
+            {
+                return true; 
+            }
+        }
+        return false; 
+    }
+
+    private boolean isWithinBounds(int row, int col, Piece[][] board) 
+    {
+        return row >= 0 && row < board.length && col >= 0 && col < board[0].length;
+    }
+
 
     private void printBoardState() 
     {
