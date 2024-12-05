@@ -115,7 +115,8 @@ public class GameBoardGUI extends JFrame
     private void checkCapture(Piece[][] board, int row, int col) 
     {
         int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; 
-    
+        List<int[]> captures= new ArrayList<>();
+
         for (int[] dir : directions) 
         {
             List<int[]> captureGroup = new ArrayList<>();
@@ -157,25 +158,50 @@ public class GameBoardGUI extends JFrame
             }
         }
     
-        boolean movedPieceCaptured = checkSelfCapture(board, row, col);
-        if (movedPieceCaptured) 
-        {
-            board[row][col] = null; 
-        }
-    
         for (int[] dir : directions) 
         {
+            List<int[]> captureGroup = new ArrayList<>();
+            boolean wallFound = false;
+            boolean opponentPieceFound = false;
+
             int adjRow = row + dir[0];
             int adjCol = col + dir[1];
-    
-            if (isWithinBounds(adjRow, adjCol, board) && board[adjRow][adjCol] != null &&
-                board[row][col] != null && board[adjRow][adjCol].isAIControlled() == board[row][col].isAIControlled()) 
+            int oppRow = row - dir[0];
+            int oppCol = col - dir[1];
+            
+            if(!isWithinBounds(adjRow, adjCol, board) || (board[adjRow][adjCol] != null && board[adjRow][adjCol].isAIControlled() != board[row][col].isAIControlled()))
+            {
+                while (isWithinBounds(oppRow, oppCol, board)) 
                 {
-                boolean allyCaptured = checkSelfCapture(board, adjRow, adjCol);
-    
-                if (allyCaptured) 
+                    if (board[oppRow][oppCol] == null) 
+                    {
+                        break; 
+                    }
+        
+                    if (board[row][col] != null && board[oppRow][oppCol].isAIControlled() != board[row][col].isAIControlled()) 
+                    {
+                        opponentPieceFound = true; 
+                        break;
+                    }
+        
+                    captureGroup.add(new int[]{oppRow, oppCol}); 
+                    oppRow -= dir[0];
+                    oppCol -= dir[1];
+                }
+
+                if (!isWithinBounds(oppRow, oppCol, board)) 
                 {
-                    board[adjRow][adjCol] = null;
+                    wallFound = true; 
+                }
+        
+                if (wallFound || opponentPieceFound) 
+                {
+                    captureGroup.add(new int[]{row, col});
+                    for (int[] pos : captureGroup) 
+                    {
+                        board[pos[0]][pos[1]] = null;
+                    }
+                    break;
                 }
             }
         }
