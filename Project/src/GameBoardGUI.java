@@ -153,7 +153,7 @@ public class GameBoardGUI extends JFrame
             {
                 for (int[] pos : captureGroup) 
                 {
-                    board[pos[0]][pos[1]] = null;
+                    captures.add(pos);
                 }
             }
         }
@@ -199,38 +199,19 @@ public class GameBoardGUI extends JFrame
                     captureGroup.add(new int[]{row, col});
                     for (int[] pos : captureGroup) 
                     {
-                        board[pos[0]][pos[1]] = null;
+                        captures.add(pos);
                     }
                     break;
                 }
             }
         }
-    }
-    
-    private boolean checkSelfCapture(Piece[][] board, int row, int col) 
-    {
-        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-        for (int[] dir : directions) 
-        {
-            int r1 = row + dir[0];
-            int c1 = col + dir[1];
-            int r2 = row - dir[0];
-            int c2 = col - dir[1];
-    
-            boolean isTrapped = isWithinBounds(r1, c1, board) &&
-                                board[r1][c1] != null &&
-                                board[r1][c1].isAIControlled() != board[row][col].isAIControlled() &&
-                                (!isWithinBounds(r2, c2, board) || 
-                                 (board[r2][c2] != null && board[r2][c2].isAIControlled() != board[row][col].isAIControlled()));
-    
-            if (isTrapped) 
-            {
-                return true; 
-            }
-        }
-        return false; 
-    }
 
+        for (int[] pos : captures) 
+        {
+            board[pos[0]][pos[1]] = null;
+        }
+}
+    
     private boolean isWithinBounds(int row, int col, Piece[][] board) 
     {
         return row >= 0 && row < board.length && col >= 0 && col < board[0].length;
