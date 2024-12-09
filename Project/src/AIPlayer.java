@@ -17,7 +17,8 @@ public class AIPlayer
     
         for (Piece[][] successor : getSuccesors(boardState,true)) 
         {
-            if (movedPieces.contains(getMovedPiece(boardState, successor))) {
+            if (movedPieces.contains(getMovedPiece(boardState, successor))) 
+            {
                 continue;
             }
             int score = minimax(successor, this.depth - 1, Integer.MIN_VALUE, Integer.MAX_VALUE,false);
@@ -298,10 +299,14 @@ public class AIPlayer
         return moves;
     }
 
-    private Piece getMovedPiece(Piece[][] previousState, Piece[][] currentState) {
-        for (int row = 0; row < previousState.length; row++) {
-            for (int col = 0; col < previousState[row].length; col++) {
-                if (previousState[row][col] != currentState[row][col] && currentState[row][col] != null) {
+    private Piece getMovedPiece(Piece[][] previousState, Piece[][] currentState) 
+    {
+        for (int row = 0; row < previousState.length; row++) 
+        {
+            for (int col = 0; col < previousState[row].length; col++) 
+            {
+                if (previousState[row][col] != currentState[row][col] && currentState[row][col] != null) 
+                {
                     return currentState[row][col];
                 }
             }
@@ -322,12 +327,18 @@ public class AIPlayer
         return newState;
     }
 
-    private void printBoardState(Piece[][] boardState) {
-        for (Piece[] row : boardState) {
-            for (Piece piece : row) {
-                if (piece == null) System.out.print("[ ] ");
-                else if (piece instanceof CirclePiece) System.out.print("[O] ");
-                else if (piece instanceof TrianglePiece) System.out.print("[△] ");
+    private void printBoardState(Piece[][] boardState) 
+    {
+        for (Piece[] row : boardState) 
+        {
+            for (Piece piece : row) 
+            {
+                if (piece == null) 
+                    System.out.print("[ ] ");
+                else if (piece instanceof CirclePiece) 
+                    System.out.print("[O] ");
+                else if (piece instanceof TrianglePiece) 
+                    System.out.print("[△] ");
             }
             System.out.println();
         }

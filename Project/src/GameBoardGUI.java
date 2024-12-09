@@ -27,7 +27,7 @@ public class GameBoardGUI extends JFrame
         setSize(600, 600);
 
         initializeBoard();
-        ai = new AIPlayer(8);
+        ai = new AIPlayer(5);
 
         if(isAiTurn)
         {
@@ -93,7 +93,7 @@ public class GameBoardGUI extends JFrame
         JButton clickedButton = boardButtons[row][col];
         Piece clickedPiece = (Piece) clickedButton.getClientProperty("piece");
     
-        if (selectedPiece == null && clickedPiece != null) 
+        if (selectedPiece == null && clickedPiece != null && (!clickedPiece.isAIControlled())) 
         {
             if (clickedPiece instanceof CirclePiece || clickedPiece instanceof TrianglePiece)
             {
@@ -127,6 +127,7 @@ public class GameBoardGUI extends JFrame
                 if(humanMoveCount == 0)
                 {
                     isAiTurn = true;
+                    aiMoveCount = (countPieces(true) > 1) ? 2 : 1;
                     aiMove();
                 }
             }
@@ -246,17 +247,11 @@ public class GameBoardGUI extends JFrame
         {
             Piece[][] previousState = copyBoardState(boardState);
             boardState = ai.makeMove(boardState, movedPieces);
-            redrawBoard();
-            if (isSameBoardState(previousState, boardState)) {
-                System.out.println("Board state did not change after AI move.");
-            } else {
-                System.out.println("Board state updated by AI move.");
-            }
-    
+            redrawBoard();  
         }
         movedPieces.clear();
         isAiTurn = false;
-        humanMoveCount = 2;
+        humanMoveCount = (countPieces(false) > 1) ? 2 : 1;
         System.out.println("AI completed its turn");
     }
 
@@ -279,7 +274,7 @@ public class GameBoardGUI extends JFrame
                 }
             }
         }
-        repaint();
+        //repaint();
     }
 
     private void printBoardState() 
@@ -317,29 +312,32 @@ public class GameBoardGUI extends JFrame
         Image resizedImg = img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH);
         return new ImageIcon(resizedImg);
     }
-
-    private boolean isSameBoardState(Piece[][] board1, Piece[][] board2) {
-        for (int row = 0; row < board1.length; row++) {
-            for (int col = 0; col < board1[row].length; col++) {
-                if (board1[row][col] != board2[row][col]) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
     
     private Piece[][] copyBoardState(Piece[][] board) {
         Piece[][] copy = new Piece[board.length][board[0].length];
-        for (int row = 0; row < board.length; row++) {
-            for (int col = 0; col < board[row].length; col++) {
+        for (int row = 0; row < board.length; row++) 
+        {
+            for (int col = 0; col < board[row].length; col++) 
+            {
                 copy[row][col] = board[row][col]; // Assumes shallow copy is sufficient
             }
         }
         return copy;
     }
 
-
+    private int countPieces(boolean isAIControlled)
+    {
+        int count = 0;
+        for (int row = 0; row < boardState.length; row++) 
+        {
+            for (int col = 0; col < boardState[row].length; col++) 
+            {
+                if(boardState[row][col] != null && boardState[row][col].isAIControlled() == isAIControlled)
+                    count++;
+            }
+        }
+        return count;
+    }
 
     public static void main(String[] args) 
     {
