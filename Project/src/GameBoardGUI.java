@@ -10,7 +10,15 @@ public class GameBoardGUI extends JFrame
     private Piece[][] boardState;
     private Piece selectedPiece = null; 
     private int selectedRow = -1;       
-    private int selectedCol = -1;    
+    private int selectedCol = -1;
+    private int moves = 50;
+    private int circleCount = 4;
+    private int triangleCount = 4;
+    private AIPlayer ai;    
+    private boolean isAiTurn = true;
+    private int humanMoveCount = 2;
+    private int aiMoveCount = 2;
+    private List<Piece> movedPieces = new ArrayList<>();
 
     public GameBoardGUI() 
     {
@@ -19,6 +27,12 @@ public class GameBoardGUI extends JFrame
         setSize(600, 600);
 
         initializeBoard();
+        ai = new AIPlayer(8);
+
+        if(isAiTurn)
+        {
+            aiMove();
+        }
 
         setVisible(true);
     }
@@ -74,6 +88,8 @@ public class GameBoardGUI extends JFrame
 
     private void handleButtonClick(int row, int col) 
     {
+        if(isAiTurn || (humanMoveCount == 0))
+            return;
         JButton clickedButton = boardButtons[row][col];
         Piece clickedPiece = (Piece) clickedButton.getClientProperty("piece");
     
@@ -105,8 +121,14 @@ public class GameBoardGUI extends JFrame
                 selectedCol = -1;
 
                 checkCapture(boardState, row, col);
-
                 redrawBoard();
+
+                humanMoveCount--;
+                if(humanMoveCount == 0)
+                {
+                    isAiTurn = true;
+                    aiMove();
+                }
             }
         }
         printBoardState();
@@ -210,11 +232,32 @@ public class GameBoardGUI extends JFrame
         {
             board[pos[0]][pos[1]] = null;
         }
-}
+    }
     
     private boolean isWithinBounds(int row, int col, Piece[][] board) 
     {
         return row >= 0 && row < board.length && col >= 0 && col < board[0].length;
+    }
+
+    private void aiMove()
+    {
+        System.out.println("AI is making its move...");
+        for(int i = 0; i < aiMoveCount; i++)
+        {
+            Piece[][] previousState = copyBoardState(boardState);
+            boardState = ai.makeMove(boardState, movedPieces);
+            redrawBoard();
+            if (isSameBoardState(previousState, boardState)) {
+                System.out.println("Board state did not change after AI move.");
+            } else {
+                System.out.println("Board state updated by AI move.");
+            }
+    
+        }
+        movedPieces.clear();
+        isAiTurn = false;
+        humanMoveCount = 2;
+        System.out.println("AI completed its turn");
     }
 
     private void redrawBoard() 
@@ -236,6 +279,7 @@ public class GameBoardGUI extends JFrame
                 }
             }
         }
+        repaint();
     }
 
     private void printBoardState() 
@@ -273,6 +317,29 @@ public class GameBoardGUI extends JFrame
         Image resizedImg = img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH);
         return new ImageIcon(resizedImg);
     }
+
+    private boolean isSameBoardState(Piece[][] board1, Piece[][] board2) {
+        for (int row = 0; row < board1.length; row++) {
+            for (int col = 0; col < board1[row].length; col++) {
+                if (board1[row][col] != board2[row][col]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    private Piece[][] copyBoardState(Piece[][] board) {
+        Piece[][] copy = new Piece[board.length][board[0].length];
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board[row].length; col++) {
+                copy[row][col] = board[row][col]; // Assumes shallow copy is sufficient
+            }
+        }
+        return copy;
+    }
+
+
 
     public static void main(String[] args) 
     {
