@@ -12,12 +12,11 @@ public class GameBoardGUI extends JFrame
     private int selectedRow = -1;       
     private int selectedCol = -1;
     private int moves = 50;
-    private int circleCount = 4;
-    private int triangleCount = 4;
     private AIPlayer ai;    
     private boolean isAiTurn = true;
     private int humanMoveCount = 2;
     private int aiMoveCount = 2;
+    private List<Piece> movedPiecesByAI = new ArrayList<>();
     private List<Piece> movedPieces = new ArrayList<>();
 
     public GameBoardGUI() 
@@ -93,15 +92,16 @@ public class GameBoardGUI extends JFrame
         JButton clickedButton = boardButtons[row][col];
         Piece clickedPiece = (Piece) clickedButton.getClientProperty("piece");
     
-        if (selectedPiece == null && clickedPiece != null && (!clickedPiece.isAIControlled())) 
+        if (selectedPiece == null && clickedPiece != null && (!clickedPiece.isAIControlled()) && (!movedPieces.contains(clickedPiece))) 
         {
-            if (clickedPiece instanceof CirclePiece || clickedPiece instanceof TrianglePiece)
-            {
+            //if (clickedPiece instanceof CirclePiece || clickedPiece instanceof TrianglePiece)
+            //{
                 selectedPiece = clickedPiece;
                 selectedRow = row;
                 selectedCol = col;
+                movedPieces.add(selectedPiece);
                 System.out.println("Piece selected at (" + row + ", " + col + ")");
-            }
+            //}
         } 
         else if (selectedPiece != null) 
         {
@@ -126,6 +126,7 @@ public class GameBoardGUI extends JFrame
                 humanMoveCount--;
                 if(humanMoveCount == 0)
                 {
+                    movedPieces.clear();
                     isAiTurn = true;
                     aiMoveCount = (countPieces(true) > 1) ? 2 : 1;
                     aiMove();
@@ -245,11 +246,10 @@ public class GameBoardGUI extends JFrame
         System.out.println("AI is making its move...");
         for(int i = 0; i < aiMoveCount; i++)
         {
-            Piece[][] previousState = copyBoardState(boardState);
-            boardState = ai.makeMove(boardState, movedPieces);
+            boardState = ai.makeMove(boardState, movedPiecesByAI);
             redrawBoard();  
         }
-        movedPieces.clear();
+        movedPiecesByAI.clear();
         isAiTurn = false;
         humanMoveCount = (countPieces(false) > 1) ? 2 : 1;
         System.out.println("AI completed its turn");
@@ -313,18 +313,6 @@ public class GameBoardGUI extends JFrame
         return new ImageIcon(resizedImg);
     }
     
-    private Piece[][] copyBoardState(Piece[][] board) {
-        Piece[][] copy = new Piece[board.length][board[0].length];
-        for (int row = 0; row < board.length; row++) 
-        {
-            for (int col = 0; col < board[row].length; col++) 
-            {
-                copy[row][col] = board[row][col]; // Assumes shallow copy is sufficient
-            }
-        }
-        return copy;
-    }
-
     private int countPieces(boolean isAIControlled)
     {
         int count = 0;
