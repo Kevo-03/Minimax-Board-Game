@@ -35,9 +35,9 @@ public class AIPlayer
         return bestMove;
     }
 
-    /*private int minimax(Piece [][] currentState, int depth, int alpha, int beta, boolean isMaximazing)
+    private int minimax(Piece [][] currentState, int depth, int alpha, int beta, boolean isMaximazing)
     {
-        if(depth == 0 && isTerminalState(currentState))
+        if(depth == 0 || isTerminalState(currentState))
         {
             return evaluate(currentState);
         }
@@ -68,8 +68,8 @@ public class AIPlayer
             }
             return v;
         }
-    }*/
-    private int minimax(Piece[][] currentState, int depth, int alpha, int beta, boolean isMaximizing) {
+    }
+    /* private int minimax(Piece[][] currentState, int depth, int alpha, int beta, boolean isMaximizing) {
         if (depth == 0 || isTerminalState(currentState)) {
             return evaluate(currentState);
         }
@@ -97,7 +97,7 @@ public class AIPlayer
             }
             return minEval;
         }
-    }
+    } */
 
     private int evaluate(Piece [][] boardState)
     {
