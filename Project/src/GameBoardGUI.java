@@ -7,6 +7,7 @@ public class GameBoardGUI extends JFrame
 {
     private JPanel boardPanel;
     private JButton[][] boardButtons;
+    private JLabel moveCountLabel;
     private Piece[][] boardState;
     private Piece selectedPiece = null; 
     private int selectedRow = -1;       
@@ -41,6 +42,12 @@ public class GameBoardGUI extends JFrame
         boardPanel = new JPanel(new GridLayout(7, 7));
         boardButtons = new JButton[7][7];
         boardState = new Piece[7][7];
+
+        moveCountLabel = new JLabel();
+        updateMoveCountLabel(); 
+        JPanel infoPanel = new JPanel(new BorderLayout());
+        infoPanel.add(moveCountLabel, BorderLayout.CENTER);
+        add(infoPanel, BorderLayout.NORTH);
 
         for (int row = 0; row < 7; row++) 
         {
@@ -85,6 +92,15 @@ public class GameBoardGUI extends JFrame
         button.putClientProperty("piece", piece);
     }
 
+    private void updateMoveCountLabel() 
+    {
+        String labelText = String.format(
+            "Total Moves: %d | Human Moves Left: %d | AI Moves Left: %d",
+            moves, humanMoveCount, aiMoveCount
+        );
+        moveCountLabel.setText(labelText);
+    }
+
     private void handleButtonClick(int row, int col) 
     {
         if(isAiTurn || (humanMoveCount == 0))
@@ -124,6 +140,9 @@ public class GameBoardGUI extends JFrame
                 redrawBoard();
 
                 humanMoveCount--;
+                moves--;
+                updateMoveCountLabel();
+                checkGameOver();
                 if(humanMoveCount == 0)
                 {
                     movedPieces.clear();
@@ -246,8 +265,11 @@ public class GameBoardGUI extends JFrame
         System.out.println("AI is making its move...");
         for(int i = 0; i < aiMoveCount; i++)
         {
+            moves--;
             boardState = ai.makeMove(boardState, movedPiecesByAI);
             redrawBoard();  
+            updateMoveCountLabel();
+            checkGameOver();
         }
         movedPiecesByAI.clear();
         isAiTurn = false;
@@ -325,6 +347,80 @@ public class GameBoardGUI extends JFrame
             }
         }
         return count;
+    }
+
+    private void checkGameOver() 
+    {
+        int aiPieces = countPieces(true);
+        int humanPieces = countPieces(false);
+    
+        if (aiPieces == 0) 
+        {
+            showGameOverMessage("Game Over! Human wins!");
+        } 
+        else if (humanPieces == 0) 
+        {
+            showGameOverMessage("Game Over! AI wins!");
+        } 
+        else if (moves == 0) 
+        {
+            if(humanPieces == aiPieces)
+            {
+                showGameOverMessage("Game Over! Draw!");
+            }
+            else if(humanPieces > aiPieces)
+            {
+                showGameOverMessage("Game Over! Human wins!");
+            }
+            else 
+            {
+                showGameOverMessage("Game Over! AI wins!");
+            }
+        }
+    }
+
+    private void showGameOverMessage(String message) 
+    {
+        int option = JOptionPane.showOptionDialog(
+            this,
+            message + "\nDo you want to restart the game?",
+            "Game Over",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.INFORMATION_MESSAGE,
+            null,
+            new Object[]{"Restart", "Exit"},
+            "Restart"
+        );
+    
+        if (option == JOptionPane.YES_OPTION) 
+        {
+            restartGame();
+        } 
+        else 
+        {
+            System.exit(0); 
+        }
+    }
+
+    private void restartGame() 
+    {
+        for (int row = 0; row < boardState.length; row++) 
+        {
+            for (int col = 0; col < boardState[row].length; col++) 
+            {
+                boardState[row][col] = null;
+                boardButtons[row][col].setIcon(null);
+            }
+        }
+        initializeBoard();
+        moves = 50;
+        humanMoveCount = 2;
+        aiMoveCount = 2;
+        movedPieces.clear();
+        movedPiecesByAI.clear();
+        isAiTurn = true;
+        updateMoveCountLabel();
+        redrawBoard();
     }
 
     public static void main(String[] args) 
