@@ -27,7 +27,7 @@ public class GameBoardGUI extends JFrame
         setSize(600, 600);
 
         initializeBoard();
-        ai = new AIPlayer(5);
+        ai = new AIPlayer(8);
 
         if(isAiTurn)
         {
