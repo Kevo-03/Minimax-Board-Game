@@ -108,17 +108,15 @@ public class AIPlayer
                 Piece piece = boardState[row][col];
                 if (piece != null) {
                     if (piece.isAIControlled()) {
-                        aiScore += 10; // AI piece value
-                        //aiScore += getPositionalValue(row, col); // Positional advantage
+                        aiScore += 10; 
                     } else {
-                        humanScore += 10; // Human piece value
-                        //humanScore += getPositionalValue(row, col); // Positional advantage
+                        humanScore += 10; 
                     }
                 }
             }
         }
 
-        return aiScore - humanScore; // Higher score means better for AI
+        return aiScore - humanScore; 
     }
 
     private int getPositionalValue(int row, int col) 
@@ -143,7 +141,6 @@ public class AIPlayer
             }
         }
     
-        // Terminal conditions
         return aiPieces == 0 || humanPieces == 0 || (aiPieces == 1 && humanPieces == 1);
     }
 
