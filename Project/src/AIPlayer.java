@@ -141,10 +141,12 @@ public class AIPlayer
                     if (piece.isAIControlled()) 
                     {
                         aiScore += calculatePieceScore(piece, row, col, boardState);
+                        aiScore += evaluateFutureCaptures(boardState, row, col) * 20;
                     } 
                     
                     else {
                         humanScore += calculatePieceScore(piece, row, col, boardState);
+                        aiScore += evaluateFutureCaptures(boardState, row, col) * 20;
                     }
                 }
             }
@@ -164,7 +166,7 @@ public class AIPlayer
         score += (10 - distanceFromCenter); // Closer to the center is better
     
         // Add potential captures
-        score += getPotentialCaptures(boardState, row, col) * 20;
+        //score += getPotentialCaptures(boardState, row, col) * 20;
     
         // Add defensive position
         score += getDefensiveSupport(boardState, row, col) * 10;
@@ -189,9 +191,8 @@ public class AIPlayer
                 Piece adjacent = boardState[r][c];
                 Piece opposite = boardState[oppR][oppC];
     
-                if (adjacent != null && opposite != null &&
-                    adjacent.isAIControlled() != boardState[row][col].isAIControlled() &&
-                    opposite.isAIControlled() != boardState[row][col].isAIControlled()) {
+                if (adjacent != null && opposite != null && adjacent.isAIControlled() != boardState[row][col].isAIControlled() && opposite.isAIControlled() != boardState[row][col].isAIControlled()) 
+                {
                     captures++;
                 }
             }
@@ -223,10 +224,77 @@ public class AIPlayer
         return defense;
     }
 
-    private int getPositionalValue(int row, int col) 
+    private int evaluateFutureCaptures(Piece[][] boardState, int row, int col) 
     {
-        // Example: Encourage central positions or proximity to opponent's side
-        return 7 - Math.abs(row - 3) - Math.abs(col - 3); // Center of the board is most valuable
+        int captureCount = 0;
+    
+        // Generate valid moves for the current piece
+        List<int[]> validMoves = getValidMoves(boardState, row, col);
+        for (int[] move : validMoves) 
+        {
+            int newRow = move[0];
+            int newCol = move[1];
+    
+            // Simulate the move
+            Piece[][] newState = deepCopyBoard(boardState);
+            newState[newRow][newCol] = boardState[row][col];
+            newState[row][col] = null;
+    
+            // Check if this move results in a capture
+            List<int[]> capturedPieces = checkCaptureWithoutModify(newState, newRow, newCol);
+            captureCount += capturedPieces.size();
+        }
+    
+        return captureCount;
+    }
+
+    private  List<int[]> checkCaptureWithoutModify(Piece[][] board, int row, int col) 
+    {
+        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; 
+        List<int[]> captures= new ArrayList<>();
+
+        for (int[] dir : directions) 
+        {
+            List<int[]> captureGroup = new ArrayList<>();
+            boolean wallFound = false;
+            boolean friendlyPieceFound = false;
+    
+            int r = row + dir[0];
+            int c = col + dir[1];
+    
+            while (isWithinBounds(r, c, board)) 
+            {
+                if (board[r][c] == null) 
+                {
+                    break; 
+                }
+    
+                if (board[row][col] != null && board[r][c].isAIControlled() == board[row][col].isAIControlled()) 
+                {
+                    friendlyPieceFound = true; 
+                    break;
+                }
+    
+                captureGroup.add(new int[]{r, c}); 
+                r += dir[0];
+                c += dir[1];
+            }
+    
+            if (!isWithinBounds(r, c, board)) 
+            {
+                wallFound = true; 
+            }
+    
+            if (wallFound || friendlyPieceFound) 
+            {
+                for (int[] pos : captureGroup) 
+                {
+                    captures.add(pos);
+                }
+            }
+        }
+
+        return captures;
     }
 
     private boolean isTerminalState(Piece[][] boardState) 
