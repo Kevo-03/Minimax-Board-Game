@@ -27,7 +27,7 @@ public class GameBoardGUI extends JFrame
         setSize(600, 600);
 
         initializeBoard();
-        ai = new AIPlayer(8);
+        ai = new AIPlayer(3);
 
         if(isAiTurn)
         {
@@ -263,14 +263,26 @@ public class GameBoardGUI extends JFrame
     private void aiMove()
     {
         System.out.println("AI is making its move...");
-        for(int i = 0; i < aiMoveCount; i++)
+        /* for(int i = 0; i < aiMoveCount; i++)
         {
             moves--;
             boardState = ai.makeMove(boardState, movedPiecesByAI);
             redrawBoard();  
             updateMoveCountLabel();
             checkGameOver();
+        } */
+        if(countPieces(rootPaneCheckingEnabled) > 1)
+        {
+            moves -= 2;
         }
+        else 
+        {
+            moves--;
+        }
+        boardState = ai.makeMove(boardState, movedPiecesByAI);
+        redrawBoard();  
+        updateMoveCountLabel();
+        checkGameOver();
         movedPiecesByAI.clear();
         isAiTurn = false;
         humanMoveCount = (countPieces(false) > 1) ? 2 : 1;
