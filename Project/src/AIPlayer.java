@@ -99,7 +99,7 @@ public class AIPlayer
         }
     } */
 
-    private int evaluate(Piece [][] boardState)
+   /*  private int evaluate(Piece [][] boardState) 
     {
         int aiScore = 0, humanScore = 0;
 
@@ -124,6 +124,103 @@ public class AIPlayer
         }
 
         return aiScore - humanScore; 
+    }*/
+
+    private int evaluate(Piece[][] boardState) 
+    {
+        int aiScore = 0;
+        int humanScore = 0;
+    
+        for (int row = 0; row < boardState.length; row++) 
+        {
+            for (int col = 0; col < boardState[row].length; col++) 
+            {
+                Piece piece = boardState[row][col];
+                if (piece != null) 
+                {
+                    if (piece.isAIControlled()) 
+                    {
+                        aiScore += calculatePieceScore(piece, row, col, boardState);
+                    } 
+                    
+                    else {
+                        humanScore += calculatePieceScore(piece, row, col, boardState);
+                    }
+                }
+            }
+        }
+    
+        return aiScore - humanScore;
+    }
+
+    private int calculatePieceScore(Piece piece, int row, int col, Piece[][] boardState) 
+    {
+        int score = 10; // Base score for the piece
+    
+        // Add positional advantage
+        int centerRow = boardState.length / 2;
+        int centerCol = boardState[0].length / 2;
+        int distanceFromCenter = Math.abs(row - centerRow) + Math.abs(col - centerCol);
+        score += (10 - distanceFromCenter); // Closer to the center is better
+    
+        // Add potential captures
+        score += getPotentialCaptures(boardState, row, col) * 20;
+    
+        // Add defensive position
+        score += getDefensiveSupport(boardState, row, col) * 10;
+    
+        return score;
+    }
+
+    private int getPotentialCaptures(Piece[][] boardState, int row, int col) 
+    {
+        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+        int captures = 0;
+    
+        for (int[] dir : directions) 
+        {
+            int r = row + dir[0];
+            int c = col + dir[1];
+            int oppR = row - dir[0];
+            int oppC = col - dir[1];
+    
+            if (isWithinBounds(r, c, boardState) && isWithinBounds(oppR, oppC, boardState)) 
+            {
+                Piece adjacent = boardState[r][c];
+                Piece opposite = boardState[oppR][oppC];
+    
+                if (adjacent != null && opposite != null &&
+                    adjacent.isAIControlled() != boardState[row][col].isAIControlled() &&
+                    opposite.isAIControlled() != boardState[row][col].isAIControlled()) {
+                    captures++;
+                }
+            }
+        }
+    
+        return captures;
+    }
+
+    private int getDefensiveSupport(Piece[][] boardState, int row, int col) 
+    {
+        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+        int defense = 0;
+    
+        for (int[] dir : directions) 
+        {
+            int r = row + dir[0];
+            int c = col + dir[1];
+    
+            if (isWithinBounds(r, c, boardState)) 
+            {
+                Piece adjacent = boardState[r][c];
+                if (adjacent != null && adjacent.isAIControlled() == boardState[row][col].isAIControlled()) 
+                {
+                    defense++;
+                }
+            }
+        }
+    
+        return defense;
     }
 
     private int getPositionalValue(int row, int col) 
