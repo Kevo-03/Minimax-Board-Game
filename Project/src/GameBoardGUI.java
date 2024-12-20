@@ -16,7 +16,6 @@ public class GameBoardGUI extends JFrame
     private AIPlayer ai;    
     private boolean isAiTurn = true;
     private int humanMoveCount = 2;
-    private int aiMoveCount = 2;
     private List<Piece> movedPiecesByAI = new ArrayList<>();
     private List<Piece> movedPieces = new ArrayList<>();
 
@@ -94,10 +93,7 @@ public class GameBoardGUI extends JFrame
 
     private void updateMoveCountLabel() 
     {
-        String labelText = String.format(
-            "Total Moves: %d | Human Moves Left: %d | AI Moves Left: %d",
-            moves, humanMoveCount, aiMoveCount
-        );
+        String labelText = String.format("Total Moves: %d | Human Moves Left: %d", moves, humanMoveCount );
         moveCountLabel.setText(labelText);
     }
 
@@ -147,7 +143,6 @@ public class GameBoardGUI extends JFrame
                 {
                     movedPieces.clear();
                     isAiTurn = true;
-                    aiMoveCount = (countPieces(true) > 1) ? 2 : 1;
                     aiMove();
                 }
             }
@@ -281,11 +276,11 @@ public class GameBoardGUI extends JFrame
         }
         boardState = ai.makeMove(boardState, movedPiecesByAI);
         redrawBoard();  
-        updateMoveCountLabel();
         checkGameOver();
         movedPiecesByAI.clear();
         isAiTurn = false;
         humanMoveCount = (countPieces(false) > 1) ? 2 : 1;
+        updateMoveCountLabel();
         System.out.println("AI completed its turn");
     }
 
@@ -427,7 +422,6 @@ public class GameBoardGUI extends JFrame
         initializeBoard();
         moves = 50;
         humanMoveCount = 2;
-        aiMoveCount = 2;
         movedPieces.clear();
         movedPiecesByAI.clear();
         isAiTurn = true;

@@ -50,7 +50,7 @@ public class AIPlayer
                 int tempV = minimax(successor, depth - 1, alpha, beta, false);
                 v = Math.max(tempV,v);
                 if(v >= beta)
-                    return v;
+                    break;
                 alpha = Math.max(alpha, v);
             }
             return v;
@@ -63,7 +63,7 @@ public class AIPlayer
                 int tempV = minimax(successor, depth - 1, alpha, beta, true);
                 v = Math.min(tempV,v);
                 if(v <= alpha)
-                    return v;
+                    break;
                 beta = Math.min(beta, v);
             }
             return v;
@@ -141,12 +141,13 @@ public class AIPlayer
                     if (piece.isAIControlled()) 
                     {
                         aiScore += calculatePieceScore(piece, row, col, boardState);
-                        aiScore += evaluateFutureCaptures(boardState, row, col) * 20;
+                        //aiScore += evaluateFutureCaptures(boardState, row, col) * 20;
                     } 
                     
-                    else {
+                    else 
+                    {
                         humanScore += calculatePieceScore(piece, row, col, boardState);
-                        aiScore += evaluateFutureCaptures(boardState, row, col) * 20;
+                        //humanScore += evaluateFutureCaptures(boardState, row, col) * 20;
                     }
                 }
             }
@@ -157,18 +158,14 @@ public class AIPlayer
 
     private int calculatePieceScore(Piece piece, int row, int col, Piece[][] boardState) 
     {
-        int score = 10; // Base score for the piece
+        int score = 100; // Base score for the piece
     
         // Add positional advantage
         int centerRow = boardState.length / 2;
         int centerCol = boardState[0].length / 2;
         int distanceFromCenter = Math.abs(row - centerRow) + Math.abs(col - centerCol);
-        score += (10 - distanceFromCenter); // Closer to the center is better
-    
-        // Add potential captures
-        //score += getPotentialCaptures(boardState, row, col) * 20;
-    
-        // Add defensive position
+        score += (10 - distanceFromCenter); 
+        score += evaluateFutureCaptures(boardState, row, col) * 30;
         score += getDefensiveSupport(boardState, row, col) * 10;
     
         return score;
@@ -227,8 +224,6 @@ public class AIPlayer
     private int evaluateFutureCaptures(Piece[][] boardState, int row, int col) 
     {
         int captureCount = 0;
-    
-        // Generate valid moves for the current piece
         List<int[]> validMoves = getValidMoves(boardState, row, col);
         for (int[] move : validMoves) 
         {
@@ -356,7 +351,6 @@ public class AIPlayer
                 Piece piece1 = currentState[row1][col1];
                 if (piece1 != null && piece1.isAIControlled() == isAiTurn) 
                 {
-                    // Generate valid moves for the first move
                     List<int[]> validMoves1 = getValidMoves(currentState, row1, col1);
     
                     for (int[] move1 : validMoves1) 
@@ -364,20 +358,16 @@ public class AIPlayer
                         int newRow1 = move1[0];
                         int newCol1 = move1[1];
     
-                        // Apply the first move
                         Piece[][] newState1 = deepCopyBoard(currentState);
                         newState1[newRow1][newCol1] = piece1;
                         newState1[row1][col1] = null;
                         checkCapture(newState1, newRow1, newCol1);
-    
-                        // If only one move is allowed, add the new state as a successor
                         if (pieceCount <= 1) 
                         {
                             successors.add(newState1);
                         } 
                         else 
                         {
-                            // For the second move, ensure a different piece is moved
                             for (int row2 = 0; row2 < newState1.length; row2++) 
                             {
                                 for (int col2 = 0; col2 < newState1[row2].length; col2++) 
@@ -385,21 +375,18 @@ public class AIPlayer
                                     Piece piece2 = newState1[row2][col2];
                                     if (piece2 != null && piece2.isAIControlled() == isAiTurn && (row2 != newRow1 || col2 != newCol1)) 
                                     {
-                                        // Generate valid moves for the second piece
                                         List<int[]> validMoves2 = getValidMoves(newState1, row2, col2);
     
                                         for (int[] move2 : validMoves2) 
                                         {
                                             int newRow2 = move2[0];
                                             int newCol2 = move2[1];
-    
-                                            // Apply the second move
+
                                             Piece[][] newState2 = deepCopyBoard(newState1);
                                             newState2[newRow2][newCol2] = piece2;
                                             newState2[row2][col2] = null;
                                             checkCapture(newState2, newRow2, newCol2);
     
-                                            // Add the final state after two moves as a successor
                                             successors.add(newState2);
                                         }
                                     }
