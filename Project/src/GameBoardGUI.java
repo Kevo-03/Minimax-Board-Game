@@ -419,7 +419,24 @@ public class GameBoardGUI extends JFrame
                 boardButtons[row][col].setIcon(null);
             }
         }
-        initializeBoard();
+        for (int row = 0; row < 7; row++) 
+        {
+            for (int col = 0; col < 7; col++) 
+            {
+                if ((col == 0 && (row == 0 || row == 2)) || (col == 6 && (row == 4 || row == 6))) 
+                {
+                    TrianglePiece piece = new TrianglePiece();
+                    setPieceOnButton(boardButtons[row][col], piece);
+                    boardState[row][col] = piece;
+                } 
+                else if ((col == 0 && (row == 4 || row == 6)) || (col == 6 && (row == 0 || row == 2))) 
+                {
+                    CirclePiece piece = new CirclePiece();
+                    setPieceOnButton(boardButtons[row][col], piece);
+                    boardState[row][col] = piece;
+                }
+            }
+        }
         moves = 50;
         humanMoveCount = 2;
         movedPieces.clear();
@@ -427,6 +444,10 @@ public class GameBoardGUI extends JFrame
         isAiTurn = true;
         updateMoveCountLabel();
         redrawBoard();
+        if(isAiTurn)
+        {
+            aiMove();
+        }
     }
 
     public static void main(String[] args) 
