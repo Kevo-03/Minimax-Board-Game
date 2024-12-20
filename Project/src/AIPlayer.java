@@ -171,33 +171,6 @@ public class AIPlayer
         return score;
     }
 
-    private int getPotentialCaptures(Piece[][] boardState, int row, int col) 
-    {
-        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-        int captures = 0;
-    
-        for (int[] dir : directions) 
-        {
-            int r = row + dir[0];
-            int c = col + dir[1];
-            int oppR = row - dir[0];
-            int oppC = col - dir[1];
-    
-            if (isWithinBounds(r, c, boardState) && isWithinBounds(oppR, oppC, boardState)) 
-            {
-                Piece adjacent = boardState[r][c];
-                Piece opposite = boardState[oppR][oppC];
-    
-                if (adjacent != null && opposite != null && adjacent.isAIControlled() != boardState[row][col].isAIControlled() && opposite.isAIControlled() != boardState[row][col].isAIControlled()) 
-                {
-                    captures++;
-                }
-            }
-        }
-    
-        return captures;
-    }
-
     private int getDefensiveSupport(Piece[][] boardState, int row, int col) 
     {
         int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
