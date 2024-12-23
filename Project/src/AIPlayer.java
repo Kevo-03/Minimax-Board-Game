@@ -1,9 +1,13 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class AIPlayer 
 {
     private int depth;
+    private Map<String, TranspositionEntry> transpositionTable = new HashMap<>();
     
     public AIPlayer(int depth)
     {
@@ -33,9 +37,61 @@ public class AIPlayer
         printBoardState(bestMove);
         System.out.println("AI move chosen. Best score: " + bestScore);
         return bestMove;
-    }
+    } 
 
-    private int minimax(Piece [][] currentState, int depth, int alpha, int beta, boolean isMaximazing)
+    private int minimax(Piece[][] currentState, int depth, int alpha, int beta, boolean isMaximizing) 
+    {
+        String boardHash = hashBoard(currentState);
+        if (transpositionTable.containsKey(boardHash)) 
+        {
+            TranspositionEntry entry = transpositionTable.get(boardHash);
+            if (entry.depth >= depth) 
+            {
+                if (entry.isExact) return entry.value; 
+                if (isMaximizing && entry.value > alpha) alpha = entry.value; 
+                if (!isMaximizing && entry.value < beta) beta = entry.value; 
+                if (alpha >= beta) return entry.value;
+            }
+        }
+    
+        if (depth == 0 || isTerminalState(currentState)) 
+        {
+            int eval = evaluate(currentState);
+            transpositionTable.put(boardHash, new TranspositionEntry(eval, depth, true));
+            return eval;
+        }
+    
+        int value;
+        if (isMaximizing) 
+        {
+            value = Integer.MIN_VALUE;
+            for (Piece[][] successor : getSuccesors(currentState, true)) 
+            {
+                int tempValue = minimax(successor, depth - 1, alpha, beta, false);
+                value = Math.max(value, tempValue);
+                if (value >= beta) 
+                    break;
+                alpha = Math.max(alpha, value);
+            }
+        } 
+        else 
+        {
+            value = Integer.MAX_VALUE;
+            for (Piece[][] successor : getSuccesors(currentState, false)) 
+            {
+                int tempValue = minimax(successor, depth - 1, alpha, beta, true);
+                value = Math.min(value, tempValue);
+                if (value <= alpha) 
+                    break;
+                beta = Math.min(beta, value);
+            }
+        }
+        boolean isExact = value > alpha && value < beta;
+        transpositionTable.put(boardHash, new TranspositionEntry(value, depth, isExact));
+    
+        return value;
+    }
+    /* private int minimax(Piece [][] currentState, int depth, int alpha, int beta, boolean isMaximazing)
     {
         if(depth == 0 || isTerminalState(currentState))
         {
@@ -68,7 +124,7 @@ public class AIPlayer
             }
             return v;
         }
-    }
+    } */
     /* private int minimax(Piece[][] currentState, int depth, int alpha, int beta, boolean isMaximizing) {
         if (depth == 0 || isTerminalState(currentState)) {
             return evaluate(currentState);
@@ -555,5 +611,21 @@ public class AIPlayer
             System.out.println();
         }
         System.out.println();
+    }
+
+    private String hashBoard(Piece[][] boardState) {
+        StringBuilder sb = new StringBuilder();
+        for (Piece[] row : boardState) {
+            for (Piece piece : row) {
+                if (piece == null) {
+                    sb.append("0");
+                } else if (piece.isAIControlled()) {
+                    sb.append("1");
+                } else {
+                    sb.append("2");
+                }
+            }
+        }
+        return sb.toString();
     }
 }
