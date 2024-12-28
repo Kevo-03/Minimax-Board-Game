@@ -91,96 +91,6 @@ public class AIPlayer
     
         return value;
     }
-    /* private int minimax(Piece [][] currentState, int depth, int alpha, int beta, boolean isMaximazing)
-    {
-        if(depth == 0 || isTerminalState(currentState))
-        {
-            return evaluate(currentState);
-        }
-
-        if(isMaximazing)
-        {
-            int v = Integer.MIN_VALUE;
-            for(Piece[][] successor : getSuccesors(currentState,true))
-            {
-                int tempV = minimax(successor, depth - 1, alpha, beta, false);
-                v = Math.max(tempV,v);
-                if(v >= beta)
-                    break;
-                alpha = Math.max(alpha, v);
-            }
-            return v;
-        }
-        else 
-        {
-            int v = Integer.MAX_VALUE;
-            for(Piece[][] successor : getSuccesors(currentState,false))
-            {
-                int tempV = minimax(successor, depth - 1, alpha, beta, true);
-                v = Math.min(tempV,v);
-                if(v <= alpha)
-                    break;
-                beta = Math.min(beta, v);
-            }
-            return v;
-        }
-    } */
-    /* private int minimax(Piece[][] currentState, int depth, int alpha, int beta, boolean isMaximizing) {
-        if (depth == 0 || isTerminalState(currentState)) {
-            return evaluate(currentState);
-        }
-    
-        if (isMaximizing) {
-            int maxEval = Integer.MIN_VALUE;
-            for (Piece[][] successor : getSuccesors(currentState, true)) {
-                int eval = minimax(successor, depth - 1, alpha, beta, false);
-                maxEval = Math.max(maxEval, eval);
-                alpha = Math.max(alpha, eval);
-                if (beta <= alpha) {
-                    break; // Beta cutoff
-                }
-            }
-            return maxEval;
-        } else {
-            int minEval = Integer.MAX_VALUE;
-            for (Piece[][] successor : getSuccesors(currentState, false)) {
-                int eval = minimax(successor, depth - 1, alpha, beta, true);
-                minEval = Math.min(minEval, eval);
-                beta = Math.min(beta, eval);
-                if (beta <= alpha) {
-                    break; // Alpha cutoff
-                }
-            }
-            return minEval;
-        }
-    } */
-
-   /*  private int evaluate(Piece [][] boardState) 
-    {
-        int aiScore = 0, humanScore = 0;
-
-        for (int row = 0; row < boardState.length; row++) 
-        {
-            for (int col = 0; col < boardState[row].length; col++) 
-            {
-                Piece piece = boardState[row][col];
-                if (piece != null) 
-                {
-
-                    if (piece.isAIControlled()) 
-                    {
-                        aiScore += 10; 
-                    } 
-                    else 
-                    {
-                        humanScore += 10; 
-                    }
-                }
-            }
-        }
-
-        return aiScore - humanScore; 
-    }*/
 
     private int evaluate(Piece[][] boardState) 
     {
@@ -197,13 +107,11 @@ public class AIPlayer
                     if (piece.isAIControlled()) 
                     {
                         aiScore += calculatePieceScore(piece, row, col, boardState);
-                        //aiScore += evaluateFutureCaptures(boardState, row, col) * 20;
                     } 
                     
                     else 
                     {
                         humanScore += calculatePieceScore(piece, row, col, boardState);
-                        //humanScore += evaluateFutureCaptures(boardState, row, col) * 20;
                     }
                 }
             }
@@ -214,9 +122,7 @@ public class AIPlayer
 
     private int calculatePieceScore(Piece piece, int row, int col, Piece[][] boardState) 
     {
-        int score = 100; // Base score for the piece
-    
-        // Add positional advantage
+        int score = 100; 
         int centerRow = boardState.length / 2;
         int centerCol = boardState[0].length / 2;
         int distanceFromCenter = Math.abs(row - centerRow) + Math.abs(col - centerCol);
@@ -259,12 +165,10 @@ public class AIPlayer
             int newRow = move[0];
             int newCol = move[1];
     
-            // Simulate the move
             Piece[][] newState = deepCopyBoard(boardState);
             newState[newRow][newCol] = boardState[row][col];
             newState[row][col] = null;
     
-            // Check if this move results in a capture
             List<int[]> capturedPieces = checkCaptureWithoutModify(newState, newRow, newCol);
             captureCount += capturedPieces.size();
         }
@@ -339,34 +243,6 @@ public class AIPlayer
     
         return aiPieces == 0 || humanPieces == 0 || (aiPieces == 1 && humanPieces == 1);
     }
-
-   /*  private List<Piece[][]> getSuccesors(Piece[][] currentState,boolean isAiTurn)
-    {
-        List<Piece[][]> successors = new ArrayList<>();
-
-        for(int row = 0; row < currentState.length; row++)
-        {
-            for(int col = 0; col < currentState[row].length; col++)
-            {
-                Piece piece = currentState[row][col];
-                if(piece != null && piece.isAIControlled() == isAiTurn)
-                {
-                    List<int[]> validMoves = getValidMoves(currentState, row, col);
-                    for (int[] move : validMoves) 
-                    {
-                        int newRow = move[0];
-                        int newCol = move[1];
-                        Piece[][] newState = deepCopyBoard(currentState);
-                        newState[newRow][newCol] = piece;
-                        newState[row][col] = null;
-                        checkCapture(newState, newRow, newCol);
-                        successors.add(newState);
-                    }
-                }
-            }
-        }
-        return successors;
-    } */
 
     private List<Piece[][]> getSuccesors(Piece[][] currentState, boolean isAiTurn) 
     {
@@ -613,15 +489,23 @@ public class AIPlayer
         System.out.println();
     }
 
-    private String hashBoard(Piece[][] boardState) {
+    private String hashBoard(Piece[][] boardState) 
+    {
         StringBuilder sb = new StringBuilder();
-        for (Piece[] row : boardState) {
-            for (Piece piece : row) {
-                if (piece == null) {
+        for (Piece[] row : boardState) 
+        {
+            for (Piece piece : row) 
+            {
+                if (piece == null) 
+                {
                     sb.append("0");
-                } else if (piece.isAIControlled()) {
+                }
+                else if (piece.isAIControlled()) 
+                {
                     sb.append("1");
-                } else {
+                } 
+                else 
+                {
                     sb.append("2");
                 }
             }

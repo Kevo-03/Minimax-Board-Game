@@ -106,14 +106,11 @@ public class GameBoardGUI extends JFrame
     
         if (selectedPiece == null && clickedPiece != null && (!clickedPiece.isAIControlled()) && (!movedPieces.contains(clickedPiece))) 
         {
-            //if (clickedPiece instanceof CirclePiece || clickedPiece instanceof TrianglePiece)
-            //{
                 selectedPiece = clickedPiece;
                 selectedRow = row;
                 selectedCol = col;
                 movedPieces.add(selectedPiece);
                 System.out.println("Piece selected at (" + row + ", " + col + ")");
-            //}
         } 
         else if (selectedPiece != null) 
         {
@@ -258,14 +255,6 @@ public class GameBoardGUI extends JFrame
     private void aiMove()
     {
         System.out.println("AI is making its move...");
-        /* for(int i = 0; i < aiMoveCount; i++)
-        {
-            moves--;
-            boardState = ai.makeMove(boardState, movedPiecesByAI);
-            redrawBoard();  
-            updateMoveCountLabel();
-            checkGameOver();
-        } */
         if(countPieces(rootPaneCheckingEnabled) > 1)
         {
             moves -= 2;
@@ -292,18 +281,14 @@ public class GameBoardGUI extends JFrame
             {
                 if (boardState[row][col] == null) 
                 {
-                    boardButtons[row][col].setIcon(null); // Clear the icon
-                    //setPieceOnButton(boardButtons[row][col], null);
+                    boardButtons[row][col].setIcon(null);
                 } 
                 else 
                 {
-                    //Piece piece = boardState[row][col];
-                    //setPieceOnButton(boardButtons[row][col], piece);
-                    boardButtons[row][col].setIcon(resizeIcon(boardState[row][col].getIcon(), 60, 60)); // Update with the piece's icon
+                    boardButtons[row][col].setIcon(resizeIcon(boardState[row][col].getIcon(), 60, 60)); 
                 }
             }
         }
-        //repaint();
     }
 
     private void printBoardState() 
