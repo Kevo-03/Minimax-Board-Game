@@ -86,7 +86,7 @@ public class AIPlayer
                 beta = Math.min(beta, value);
             }
         }
-        boolean isExact = value > alpha && value < beta;
+        boolean isExact = alpha < beta;
         transpositionTable.put(boardHash, new TranspositionEntry(value, depth, isExact));
     
         return value;
